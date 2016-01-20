@@ -17,18 +17,21 @@ public class FlipCardGame{
 	static JLabel timerLabel;
 	static Timer timer;
 	static boolean timerStarted = false;
+	static int cardWidth=150, cardHeight=200;
+	static int gameWidth=1200, gameHeight=675;
+	static int cardRow=3, cardColumn=4;
 
 	public static void main (String[] args){
 
-		JFrame myWindow = new JFrame("Alice in Wonderland");
-		myWindow.setSize(1200,675);
+		JFrame myWindow = new JFrame("Flip Card Game");
+		myWindow.setSize(gameWidth,gameHeight);
 		myWindow.setResizable(false);  
 		myWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		myWindow.setLocation(dim.width/2-myWindow.getSize().width/2, dim.height/2-myWindow.getSize().height/2);
 		
-		myWindow.setContentPane(new JLabel(new ImageIcon("images/tile background2.jpg")));
+		myWindow.setContentPane(new JLabel(new ImageIcon("images/game_background.jpg")));
 		myWindow.setLayout(null);
 		myWindow.setResizable(false);
 		
@@ -39,31 +42,32 @@ public class FlipCardGame{
 		timer = new Timer();
 
 		cardPanel = new JPanel();
-		cardPanel.setLayout(new GridLayout(3,4));
+		cardPanel.setLayout(new GridLayout(cardRow,cardColumn));
 		cardPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
 		cardPanel.addMouseListener(new mouseListener());
 		cardPanel.setOpaque(false);
 		cardPanel.setLocation(300, 0);
-		cardPanel.setSize(600, 600);
+		cardPanel.setSize(cardColumn*cardWidth, cardRow*cardHeight);
 
 		myWindow.add(cardPanel);
 		myWindow.add(timerLabel);
 
 		myWindow.setVisible(true);
 				
-		cardNum = new int[12];
-		cardNumResult = new int[12];
+		cardNum = new int[cardRow*cardColumn];
+		cardNumResult = new int[cardRow*cardColumn];
 		int randomCardId=0;
-		for(int i=0;i<12;i++){
+		for(int i=0;i<cardRow*cardColumn;i++){
 			//put current image in random position 1
-			randomCardId = new Random().nextInt(6)+1;
+			randomCardId = new Random().nextInt(cardRow*cardColumn/2)+1;
 			while (countOccurrance(cardNum, randomCardId)>=2){
-				randomCardId = new Random().nextInt(6)+1;
+				randomCardId = new Random().nextInt(cardRow*cardColumn/2)+1;
 			}
 			cardNum[i] = randomCardId;
 		}
 		
-		for(int i=0;i<12;i++){
+		//draw hide card
+		for(int i=0;i<cardRow*cardColumn;i++){
 			drawImage(cardPanel,0);
 		}
 	}
@@ -79,7 +83,7 @@ public class FlipCardGame{
 	}
 	
 	static void drawImage(JPanel panel, int cardId){
-		JLabel img = new JLabel(new ImageIcon("images/card "+cardId+".jpg"));
+		JLabel img = new JLabel(new ImageIcon("images/card"+cardId+".jpg"));
 		img.setHorizontalAlignment(JLabel.CENTER);
 		panel.add(img);
 		panel.revalidate();
@@ -95,7 +99,8 @@ public class FlipCardGame{
 		public void mouseExited(MouseEvent e) {}
 		
 		public void mouseClicked(MouseEvent e){
-			int clickedCardPosition = e.getX()/150 + e.getY()/200 *4;//get the position of the clicked card, start from 0
+			//get the position of the clicked card, start from 0
+			int clickedCardPosition = e.getX()/cardWidth + e.getY()/cardHeight *cardColumn;
 
 			if (!timerStarted){
 				timerStarted=true;
@@ -111,7 +116,7 @@ public class FlipCardGame{
 			
 			cardPanel.removeAll();
 						
-			for(int i=0;i<12;i++){
+			for(int i=0;i<cardRow*cardColumn;i++){
 				if (cardNumResult[i]==1){
 					drawImage(cardPanel,cardNum[i]);
 				}else{
@@ -130,10 +135,10 @@ public class FlipCardGame{
 			}
 			
 			int counterResult = 0;
-			for(int i=0;i<12;i++){
+			for(int i=0;i<cardRow*cardColumn;i++){
 				counterResult+=cardNumResult[i];
 			}
-			if (counterResult==12)
+			if (counterResult==cardRow*cardColumn)
 				timer.cancel();
 						
 			lastPosition = clickedCardPosition;
